@@ -34,6 +34,7 @@ import {
   Twitter,
   WhatsApp,
   Link,
+  Info,
 } from "@mui/icons-material";
 import VideoPlayer from "./VideoPlayer";
 import { useNavigate } from "react-router-dom";
@@ -554,14 +555,20 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
                   <Typography variant="subtitle1">{video.username}</Typography>
                 </Box>
               </Box>
-              <Button
-                variant="outlined"
-                fullWidth
-                startIcon={<Favorite />}
-                sx={{ color: "white", borderColor: "white" }}
-              >
-                Seguir
-              </Button>
+              <Box sx={{ mt: 2, p: 2, bgcolor: 'rgba(255, 255, 255, 0.05)', borderRadius: 1 }}>
+                <Typography variant="h6" color="white" gutterBottom>
+                  Acerca de {video.username}
+                </Typography>
+                <Typography variant="body2" color="rgba(255, 255, 255, 0.7)" paragraph>
+                  Productora líder en contenido multimedia de alta calidad. Especializada en la creación de videos 4K y HD con narrativas impactantes y efectos visuales innovadores.
+                </Typography>
+                <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
+                  • Contenido premium en 4K y HD
+                </Typography>
+                <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
+                  • Producciones originales
+                </Typography>
+              </Box>
             </Paper>
           </Box>
         </Box>

@@ -575,9 +575,32 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
 
         {/* Videos relacionados */}
         <Box sx={{ p: 4, maxWidth: 1200, mx: "auto", position: "relative" }}>
-          <Typography variant="h5" gutterBottom sx={{ color: "white", mb: 3 }}>
-            Videos Relacionados
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h5" sx={{ color: "white" }}>
+              Videos Relacionados
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => navigate('/movies')}
+              startIcon={<Info />}
+              sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                },
+                transition: 'all 0.3s ease',
+                px: 3,
+                py: 1,
+              }}
+            >
+              Ver Lista de Películas
+            </Button>
+          </Box>
           <Box sx={{ position: "relative" }}>
             {showLeftArrow && (
               <IconButton

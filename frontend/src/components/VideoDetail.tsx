@@ -35,9 +35,10 @@ import {
   WhatsApp,
   Link,
   Info,
+  Home,
 } from "@mui/icons-material";
 import VideoPlayer from "./VideoPlayer";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface VideoDetailProps {
   video: {
@@ -117,6 +118,7 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
@@ -581,8 +583,8 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
             </Typography>
             <Button
               variant="contained"
-              onClick={() => navigate('/movies')}
-              startIcon={<Info />}
+              onClick={() => location.pathname === '/movies' ? navigate('/') : navigate('/movies')}
+              startIcon={location.pathname === '/movies' ? <Home /> : <Info />}
               sx={{
                 bgcolor: 'rgba(255, 255, 255, 0.1)',
                 color: 'white',
@@ -598,7 +600,7 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
                 py: 1,
               }}
             >
-              Ver Lista de Películas
+              {location.pathname === '/movies' ? 'Regresar al Inicio' : 'Ver Lista de Películas'}
             </Button>
           </Box>
           <Box sx={{ position: "relative" }}>

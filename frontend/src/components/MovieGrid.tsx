@@ -12,6 +12,7 @@ import {
   Container,
   Paper,
   Chip,
+  Fade,
 } from '@mui/material';
 import {
   Search,
@@ -21,80 +22,87 @@ import {
   Star,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import VideoDetail from './VideoDetail';
 
-// Datos de ejemplo para las películas
-const movies = [
+// Importar relatedVideos del VideoDetail
+const relatedVideos = [
   {
     id: "1",
-    title: "Avengers: Endgame",
-    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=60",
-    year: "2019",
-    rating: 4.8,
-    genre: "Acción",
-    duration: "3h 1min",
-    description: "Los Vengadores se reúnen una vez más para revertir las acciones de Thanos y restaurar el equilibrio del universo.",
-    videoUrl: "/videos/avengers-endgame.mp4",
-    trailerUrl: "/videos/avengers-endgame-trailer.mp4"
+    title: "Big Buck Bunny",
+    thumbnail: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=60",
+    duration: "3:45",
+    views: "1.2M",
+    username: "usuario1",
+    url: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    description: "Big Buck Bunny cuenta la historia de un gigante conejo que se enfrenta a tres matones: un zorro, un mapache y un pájaro.",
+    likes: 1200,
+    comments: 45
   },
   {
     id: "2",
-    title: "Inception",
-    poster: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=60",
-    year: "2010",
-    rating: 4.7,
-    genre: "Ciencia Ficción",
-    duration: "2h 28min",
-    description: "Un ladrón que roba información de los sueños de las personas recibe la tarea de implantar una idea en la mente de un CEO.",
-    videoUrl: "/videos/inception.mp4",
-    trailerUrl: "/videos/inception-trailer.mp4"
+    title: "Elephants Dream",
+    thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=60",
+    duration: "4:20",
+    views: "856K",
+    username: "usuario2",
+    url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    description: "Elephants Dream es el primer cortometraje de código abierto, creado por el Proyecto Orange.",
+    likes: 856,
+    comments: 32
   },
   {
     id: "3",
-    title: "The Dark Knight",
-    poster: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=60",
-    year: "2008",
-    rating: 4.9,
-    genre: "Acción",
-    duration: "2h 32min",
-    description: "Batman se enfrenta a su mayor desafío psicológico y físico cuando el misterioso Joker desata el caos en Gotham.",
-    videoUrl: "/videos/dark-knight.mp4",
-    trailerUrl: "/videos/dark-knight-trailer.mp4"
+    title: "For Bigger Blazes",
+    thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=60",
+    duration: "5:15",
+    views: "2.1M",
+    username: "usuario3",
+    url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    description: "Un video de demostración de alta calidad para probar la reproducción de video.",
+    likes: 2100,
+    comments: 78
   },
   {
     id: "4",
-    title: "Interstellar",
-    poster: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=500&auto=format&fit=crop&q=60",
-    year: "2014",
-    rating: 4.6,
-    genre: "Ciencia Ficción",
-    duration: "2h 49min",
-    description: "Un equipo de exploradores viaja a través de un agujero de gusano en el espacio en un intento de asegurar la supervivencia de la humanidad.",
-    videoUrl: "/videos/interstellar.mp4",
-    trailerUrl: "/videos/interstellar-trailer.mp4"
-  },
+    title: "For Bigger Escapes",
+    thumbnail: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=500&auto=format&fit=crop&q=60",
+    duration: "2:50",
+    views: "450K",
+    username: "usuario4",
+    url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    description: "Otro video de demostración para probar la reproducción de video en diferentes dispositivos.",
+    likes: 450,
+    comments: 23
+  }
 ];
 
 const MovieGrid: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const navigate = useNavigate();
 
-  const filteredMovies = movies.filter(movie =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    movie.genre.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredVideos = relatedVideos.filter(video =>
+    video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    video.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleMovieClick = (movieId: string) => {
-    navigate(`/movie/${movieId}`);
+  const handleVideoClick = (videoId: string) => {
+    const video = relatedVideos.find(v => v.id === videoId);
+    if (video) {
+      setSelectedVideo(video);
+    }
   };
 
-  const handlePlayClick = (e: React.MouseEvent, movieId: string) => {
+  const handlePlayClick = (e: React.MouseEvent, videoId: string) => {
     e.stopPropagation();
-    navigate(`/movie/${movieId}`);
+    const video = relatedVideos.find(v => v.id === videoId);
+    if (video) {
+      setSelectedVideo(video);
+    }
   };
 
-  const handleTrailerClick = (e: React.MouseEvent, movieId: string) => {
-    e.stopPropagation();
-    navigate(`/movie/${movieId}?view=trailer`);
+  const handleCloseVideo = () => {
+    setSelectedVideo(null);
   };
 
   return (
@@ -118,7 +126,7 @@ const MovieGrid: React.FC = () => {
           <TextField
             fullWidth
             variant="outlined"
-            placeholder="Buscar películas..."
+            placeholder="Buscar videos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{
@@ -145,7 +153,7 @@ const MovieGrid: React.FC = () => {
           />
         </Paper>
 
-        {/* Grid de películas */}
+        {/* Grid de videos */}
         <Box sx={{ 
           width: '100%',
           display: 'flex',
@@ -160,10 +168,10 @@ const MovieGrid: React.FC = () => {
             justifyContent: 'flex-start',
             alignItems: 'stretch'
           }}>
-            {filteredMovies.map((movie) => (
+            {filteredVideos.map((video) => (
               <Card
-                key={movie.id}
-                onClick={() => handleMovieClick(movie.id)}
+                key={video.id}
+                onClick={() => handleVideoClick(video.id)}
                 sx={{
                   bgcolor: 'rgba(255, 255, 255, 0.1)',
                   color: 'white',
@@ -217,8 +225,8 @@ const MovieGrid: React.FC = () => {
                   <CardMedia
                     component="img"
                     height="100%"
-                    image={movie.poster}
-                    alt={movie.title}
+                    image={video.thumbnail}
+                    alt={video.title}
                     sx={{
                       position: 'relative',
                       objectFit: 'cover',
@@ -247,9 +255,9 @@ const MovieGrid: React.FC = () => {
                       borderRadius: '4px',
                     }}
                   >
-                    <Star sx={{ color: '#FFD700' }} />
+                    <PlayArrow sx={{ color: '#4CAF50' }} />
                     <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>
-                      {movie.rating}
+                      {video.duration}
                     </Typography>
                   </Box>
                 </Box>
@@ -274,11 +282,11 @@ const MovieGrid: React.FC = () => {
                       marginBottom: '8px'
                     }}
                   >
-                    {movie.title}
+                    {video.title}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
                     <Chip
-                      label={movie.year}
+                      label={video.username}
                       size="small"
                       sx={{ 
                         bgcolor: 'rgba(255, 255, 255, 0.15)',
@@ -290,7 +298,7 @@ const MovieGrid: React.FC = () => {
                       }}
                     />
                     <Chip
-                      label={movie.genre}
+                      label={video.views}
                       size="small"
                       sx={{ 
                         bgcolor: 'rgba(255, 255, 255, 0.15)',
@@ -314,7 +322,7 @@ const MovieGrid: React.FC = () => {
                       gap: 1
                     }}
                   >
-                    <PlayArrow fontSize="small" /> {movie.duration}
+                    <PlayArrow fontSize="small" /> {video.duration}
                   </Typography>
                   <Typography 
                     variant="body2" 
@@ -331,7 +339,7 @@ const MovieGrid: React.FC = () => {
                       fontStyle: 'italic'
                     }}
                   >
-                    {movie.description}
+                    {video.description}
                   </Typography>
                   <Box sx={{ 
                     display: 'flex', 
@@ -350,7 +358,7 @@ const MovieGrid: React.FC = () => {
                           transform: 'scale(1.1)'
                         }
                       }}
-                      onClick={(e) => handlePlayClick(e, movie.id)}
+                      onClick={(e) => handlePlayClick(e, video.id)}
                     >
                       <PlayArrow fontSize="small" />
                     </IconButton>
@@ -364,7 +372,10 @@ const MovieGrid: React.FC = () => {
                           transform: 'scale(1.1)'
                         }
                       }}
-                      onClick={(e) => handleTrailerClick(e, movie.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Aquí puedes agregar la lógica para marcar como favorito
+                      }}
                     >
                       <Favorite fontSize="small" />
                     </IconButton>
@@ -392,6 +403,29 @@ const MovieGrid: React.FC = () => {
           </Box>
         </Box>
       </Container>
+
+      {/* Video Detail Modal with Fade Transition */}
+      <Fade in={!!selectedVideo} timeout={500}>
+        <Box sx={{ 
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1300,
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          transition: 'all 0.5s ease-in-out',
+          opacity: selectedVideo ? 1 : 0,
+          transform: selectedVideo ? 'translateY(0)' : 'translateY(20px)',
+        }}>
+          {selectedVideo && (
+            <VideoDetail
+              video={selectedVideo}
+              onClose={handleCloseVideo}
+            />
+          )}
+        </Box>
+      </Fade>
     </Box>
   );
 };

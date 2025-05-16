@@ -1,11 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, IconButton, Typography, Button } from "@mui/material";
+import { Box, IconButton, Typography, Button, Menu, MenuItem } from "@mui/material";
 import {
   PlayArrow,
   VolumeUp,
   VolumeOff,
   Bookmark,
   BookmarkBorder,
+  Share,
+  Facebook,
+  Twitter,
+  WhatsApp,
+  Link,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -15,6 +20,8 @@ interface VideoPlayerProps {
   description: string;
   onViewFull: () => void;
   fullScreen?: boolean;
+  likes: number;
+  comments: number;
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
@@ -23,11 +30,47 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   description,
   onViewFull,
   fullScreen = false,
+  likes,
+  comments,
 }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleShareClick = (event: React.MouseEvent<HTMLElement>) => {
+    setShareAnchorEl(event.currentTarget);
+  };
+
+  const handleShareClose = () => {
+    setShareAnchorEl(null);
+  };
+
+  const handleShare = (platform: string) => {
+    const shareUrl = window.location.href;
+    const shareText = `${username} - ${description}`;
+    
+    switch (platform) {
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+        break;
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`, '_blank');
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          // Aquí podrías mostrar una notificación de éxito
+          console.log('URL copiada al portapapeles');
+        });
+        break;
+    }
+    
+    handleShareClose();
+  };
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -41,11 +84,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     if (!video) return;
 
     const handleLoadedData = () => {
-      video.muted = false;
+      video.muted = true;
       video.volume = 1;
-      video.play().catch((error) => {
-        console.log("Error al reproducir automáticamente:", error);
-      });
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            video.muted = false;
+          })
+          .catch((error) => {
+            console.log("Error al reproducir automáticamente:", error);
+            video.muted = true;
+          });
+      }
     };
 
     const handleTimeUpdate = () => {
@@ -57,17 +108,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
     video.addEventListener("loadeddata", handleLoadedData);
     video.addEventListener("timeupdate", handleTimeUpdate);
-
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch((error) => {
-        console.log("Error al reproducir automáticamente:", error);
-        video.muted = true;
-        video.play().catch((error) => {
-          console.log("Error al reproducir con sonido silenciado:", error);
-        });
-      });
-    }
 
     return () => {
       video.removeEventListener("loadeddata", handleLoadedData);
@@ -101,7 +141,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           src={videoUrl}
           autoPlay
           loop
-          muted={false}
           playsInline
           initial={{ scale: 1 }}
           animate={{ scale: fullScreen ? 1.1 : 1 }}
@@ -179,6 +218,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 </IconButton>
 
                 <IconButton
+                  onClick={handleShareClick}
+                  sx={{
+                    color: "white",
+                    padding: "8px",
+                  }}
+                >
+                  <Share />
+                </IconButton>
+
+                <IconButton
                   onClick={toggleMute}
                   sx={{
                     color: "white",
@@ -188,6 +237,32 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   {isMuted ? <VolumeOff /> : <VolumeUp />}
                 </IconButton>
               </Box>
+
+              <Menu
+                anchorEl={shareAnchorEl}
+                open={Boolean(shareAnchorEl)}
+                onClose={handleShareClose}
+                PaperProps={{
+                  sx: {
+                    backgroundColor: "rgba(0, 0, 0, 0.9)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
+                <MenuItem onClick={() => handleShare('facebook')} sx={{ color: "white" }}>
+                  <Facebook sx={{ mr: 1 }} /> Facebook
+                </MenuItem>
+                <MenuItem onClick={() => handleShare('twitter')} sx={{ color: "white" }}>
+                  <Twitter sx={{ mr: 1 }} /> Twitter
+                </MenuItem>
+                <MenuItem onClick={() => handleShare('whatsapp')} sx={{ color: "white" }}>
+                  <WhatsApp sx={{ mr: 1 }} /> WhatsApp
+                </MenuItem>
+                <MenuItem onClick={() => handleShare('copy')} sx={{ color: "white" }}>
+                  <Link sx={{ mr: 1 }} /> Copiar enlace
+                </MenuItem>
+              </Menu>
 
               <Box
                 sx={{

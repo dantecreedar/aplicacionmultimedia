@@ -141,6 +141,7 @@ const VideoList: React.FC = () => {
     >
       {/* Buscador flotante con icono de usuario */}
       <Paper
+        elevation={3}
         sx={{
           position: "fixed",
           top: 16,
@@ -149,12 +150,21 @@ const VideoList: React.FC = () => {
           width: "90%",
           maxWidth: 500,
           zIndex: 1000,
-          backgroundColor: "rgba(0, 0, 0, 0.7)",
-          backdropFilter: "blur(10px)",
+          backgroundColor: "rgba(0, 0, 0, 0.85)",
+          backdropFilter: "blur(12px)",
           display: "flex",
           alignItems: "center",
           gap: 1,
-          p: 1,
+          p: 1.5,
+          borderRadius: "12px",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            boxShadow: "0 6px 25px rgba(0, 0, 0, 0.4)",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+          },
         }}
       >
         <TextField
@@ -165,16 +175,40 @@ const VideoList: React.FC = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Search sx={{ color: "white" }} />
+                <Search sx={{ 
+                  color: "rgba(255, 255, 255, 0.7)",
+                  transition: "color 0.3s ease",
+                  "&:hover": {
+                    color: "white",
+                  }
+                }} />
               </InputAdornment>
             ),
           }}
           sx={{
             "& .MuiInputBase-input": {
               color: "white",
+              fontSize: "1rem",
+              padding: "12px 8px",
+              "&::placeholder": {
+                color: "rgba(255, 255, 255, 0.5)",
+                opacity: 1,
+              },
             },
-            "& .MuiOutlinedInput-notchedOutline": {
-              borderColor: "rgba(255, 255, 255, 0.3)",
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "8px",
+              transition: "all 0.3s ease",
+              "& fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.1)",
+                transition: "border-color 0.3s ease",
+              },
+              "&:hover fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.3)",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.5)",
+                borderWidth: "1px",
+              },
             },
           }}
         />
@@ -182,19 +216,34 @@ const VideoList: React.FC = () => {
           onClick={() => setIsProfileOpen(true)}
           sx={{
             backgroundColor: "rgba(255, 255, 255, 0.1)",
+            borderRadius: "8px",
+            padding: "8px",
+            transition: "all 0.3s ease",
             "&:hover": {
               backgroundColor: "rgba(255, 255, 255, 0.2)",
+              transform: "scale(1.05)",
             },
           }}
         >
           <Avatar
             src="/path-to-user-avatar.jpg"
+            alt={videos[currentVideoIndex].username}
             sx={{
               width: 32,
               height: 32,
-              border: "1px solid rgba(255, 255, 255, 0.3)",
+              border: "2px solid rgba(255, 255, 255, 0.2)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                border: "2px solid rgba(255, 255, 255, 0.4)",
+              },
+              bgcolor: "rgba(255, 255, 255, 0.1)",
+              "& .MuiAvatar-img": {
+                objectFit: "cover",
+              },
             }}
-          />
+          >
+            {videos[currentVideoIndex].username?.charAt(0).toUpperCase()}
+          </Avatar>
         </IconButton>
       </Paper>
 

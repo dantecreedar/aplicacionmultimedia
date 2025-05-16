@@ -13,6 +13,9 @@ import {
   CardActionArea,
   Modal,
   Fade,
+  TextField,
+  InputAdornment,
+  Slide,
 } from "@mui/material";
 import {
   PlayArrow,
@@ -23,6 +26,8 @@ import {
   Favorite,
   ChevronLeft,
   ChevronRight,
+  Search,
+  KeyboardArrowUp,
 } from "@mui/icons-material";
 import VideoPlayer from "./VideoPlayer";
 import { useNavigate } from "react-router-dom";
@@ -102,6 +107,8 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
   const [showRightArrow, setShowRightArrow] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [showSynopsis, setShowSynopsis] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -209,6 +216,73 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
         transition: "background-color 0.3s ease-in-out",
       }}
     >
+      {/* Botón de búsqueda flotante */}
+      <IconButton
+        onClick={() => setShowSearch(!showSearch)}
+        sx={{
+          position: "fixed",
+          right: 20,
+          top: 80,
+          bgcolor: "rgba(0, 0, 0, 0.7)",
+          color: "white",
+          zIndex: 2002,
+          transition: "transform 0.3s ease",
+          "&:hover": {
+            bgcolor: "rgba(0, 0, 0, 0.8)",
+            transform: "scale(1.1)",
+          },
+        }}
+      >
+        {showSearch ? <KeyboardArrowUp /> : <Search />}
+      </IconButton>
+
+      {/* Panel de búsqueda */}
+      {showSearch && (
+        <Slide direction="down" in={showSearch} mountOnEnter unmountOnExit>
+          <Box
+            sx={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bgcolor: "rgba(0, 0, 0, 0.95)",
+              p: 2,
+              zIndex: 2001,
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Buscar videos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.5)",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "white",
+                  },
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search sx={{ color: "rgba(255, 255, 255, 0.7)" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+        </Slide>
+      )}
+
       {/* Modal de Sinopsis */}
       <Modal
         open={showSynopsis}

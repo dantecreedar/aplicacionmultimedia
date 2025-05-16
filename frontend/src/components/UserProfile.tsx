@@ -30,6 +30,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose, open }) => {
 
   const userData = {
     name: "Alexis Galli",
+    username: "@alexisgalli",
+    followers: 1234
   };
 
   return (
@@ -73,8 +75,21 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose, open }) => {
           <Box sx={{ textAlign: "center", mb: 3 }}>
             <Avatar
               src="/path-to-user-avatar.jpg"
-              sx={{ width: 80, height: 80, mx: "auto", mb: 2 }}
-            />
+              alt={userData.name}
+              sx={{
+                width: 80,
+                height: 80,
+                mx: "auto",
+                mb: 2,
+                bgcolor: "rgba(255, 255, 255, 0.1)",
+                border: "2px solid rgba(255, 255, 255, 0.2)",
+                "& .MuiAvatar-img": {
+                  objectFit: "cover",
+                },
+              }}
+            >
+              {userData.name?.charAt(0).toUpperCase()}
+            </Avatar>
             <Typography variant="h6">{userData.name}</Typography>
             <Typography variant="body2" color="text.secondary">
               {userData.username}
@@ -85,6 +100,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ onClose, open }) => {
           <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
             <Box sx={{ textAlign: "center" }}>
               <Typography variant="h6">{userData.followers}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Seguidores
+              </Typography>
             </Box>
           </Box>
 

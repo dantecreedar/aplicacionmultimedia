@@ -16,6 +16,8 @@ import {
   TextField,
   InputAdornment,
   Slide,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   PlayArrow,
@@ -28,6 +30,10 @@ import {
   ChevronRight,
   Search,
   KeyboardArrowUp,
+  Facebook,
+  Twitter,
+  WhatsApp,
+  Link,
 } from "@mui/icons-material";
 import VideoPlayer from "./VideoPlayer";
 import { useNavigate } from "react-router-dom";
@@ -110,6 +116,7 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -201,6 +208,39 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
       return () => carousel.removeEventListener('scroll', handleScroll);
     }
   }, []);
+
+  const handleShareClick = (event: React.MouseEvent<HTMLElement>) => {
+    setShareAnchorEl(event.currentTarget);
+  };
+
+  const handleShareClose = () => {
+    setShareAnchorEl(null);
+  };
+
+  const handleShare = (platform: string) => {
+    const shareUrl = window.location.href;
+    const shareText = `${video.title || 'Video'} - ${video.username}`;
+    
+    switch (platform) {
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+        break;
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`, '_blank');
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          // Aquí podrías mostrar una notificación de éxito
+          console.log('URL copiada al portapapeles');
+        });
+        break;
+    }
+    
+    handleShareClose();
+  };
 
   return (
     <Box
@@ -389,13 +429,14 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
           likes={video.likes}
           comments={video.comments}
           fullScreen={isCinemaMode}
+          onViewFull={() => {}}
         />
       </Box>
 
       {/* Información del video */}
       <Box sx={{ p: 4, maxWidth: 1200, mx: "auto" }}>
-        <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={12} md={6}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center" }}>
+          <Box sx={{ flex: { xs: "1 1 100%", md: "1 1 calc(50% - 16px)" } }}>
             <Paper
               sx={{
                 p: 3,
@@ -439,18 +480,56 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
                 <IconButton sx={{ color: "white" }}>
                   <ThumbUp />
                 </IconButton>
-                <IconButton sx={{ color: "white" }}>
+                <IconButton 
+                  onClick={handleShareClick}
+                  sx={{ 
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    },
+                  }}
+                >
                   <Share />
                 </IconButton>
               </Box>
+
+              <Menu
+                anchorEl={shareAnchorEl}
+                open={Boolean(shareAnchorEl)}
+                onClose={handleShareClose}
+                PaperProps={{
+                  sx: {
+                    backgroundColor: "rgba(0, 0, 0, 0.9)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    zIndex: 3000,
+                  },
+                }}
+                sx={{
+                  zIndex: 3000,
+                }}
+              >
+                <MenuItem onClick={() => handleShare('facebook')} sx={{ color: "white" }}>
+                  <Facebook sx={{ mr: 1 }} /> Facebook
+                </MenuItem>
+                <MenuItem onClick={() => handleShare('twitter')} sx={{ color: "white" }}>
+                  <Twitter sx={{ mr: 1 }} /> Twitter
+                </MenuItem>
+                <MenuItem onClick={() => handleShare('whatsapp')} sx={{ color: "white" }}>
+                  <WhatsApp sx={{ mr: 1 }} /> WhatsApp
+                </MenuItem>
+                <MenuItem onClick={() => handleShare('copy')} sx={{ color: "white" }}>
+                  <Link sx={{ mr: 1 }} /> Copiar enlace
+                </MenuItem>
+              </Menu>
 
               <Typography variant="body1" paragraph>
                 {video.description}
               </Typography>
             </Paper>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={6}>
+          <Box sx={{ flex: { xs: "1 1 100%", md: "1 1 calc(50% - 16px)" } }}>
             <Paper
               sx={{
                 p: 3,
@@ -484,8 +563,8 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
                 Seguir
               </Button>
             </Paper>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Videos relacionados */}
         <Box sx={{ p: 4, maxWidth: 1200, mx: "auto", position: "relative" }}>
@@ -506,7 +585,8 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
                   "&:hover": {
                     bgcolor: "rgba(0, 0, 0, 0.7)",
                   },
-                  zIndex: 1,
+                  zIndex: 2,
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
                 }}
               >
                 <ChevronLeft />
@@ -520,6 +600,8 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
                 overflowX: "hidden",
                 pb: 2,
                 scrollBehavior: "smooth",
+                position: "relative",
+                zIndex: 1,
               }}
             >
               {relatedVideos.map((relatedVideo) => (
@@ -589,7 +671,8 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
                   "&:hover": {
                     bgcolor: "rgba(0, 0, 0, 0.7)",
                   },
-                  zIndex: 1,
+                  zIndex: 2,
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
                 }}
               >
                 <ChevronRight />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -34,6 +34,32 @@ interface VideoDetailProps {
 }
 
 const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
+  const videoContainerRef = useRef<HTMLDivElement>(null);
+  const [isCinemaMode, setIsCinemaMode] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsCinemaMode(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const handlePlayCinemaMode = () => {
+    if (videoContainerRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        videoContainerRef.current.requestFullscreen().catch((err) => {
+          console.error(`Error al intentar modo cine: ${err.message}`);
+        });
+      }
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -42,9 +68,10 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.9)",
+        backgroundColor: isCinemaMode ? "black" : "rgba(0, 0, 0, 0.9)",
         zIndex: 2000,
         overflowY: "auto",
+        transition: "background-color 0.3s ease-in-out",
       }}
     >
       {/* Botón de cerrar */}
@@ -63,11 +90,13 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
 
       {/* Video principal */}
       <Box
+        ref={videoContainerRef}
         sx={{
           position: "relative",
-          height: "70vh",
+          height: isCinemaMode ? "100vh" : "70vh",
           width: "100%",
           overflow: "hidden",
+          transition: "height 0.3s ease-in-out",
         }}
       >
         <VideoPlayer
@@ -76,7 +105,7 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
           description={video.description}
           likes={video.likes}
           comments={video.comments}
-          fullScreen
+          fullScreen={isCinemaMode}
         />
       </Box>
 
@@ -101,9 +130,10 @@ const VideoDetail: React.FC<VideoDetailProps> = ({ video, onClose }) => {
               <Button
                 variant="contained"
                 startIcon={<PlayArrow />}
+                onClick={handlePlayCinemaMode}
                 sx={{
-                  backgroundColor: "#e50914",
-                  "&:hover": { backgroundColor: "#f40612" },
+                  backgroundColor: "#4CAF50",
+                  "&:hover": { backgroundColor: "#2E7D32" },
                 }}
               >
                 Reproducir

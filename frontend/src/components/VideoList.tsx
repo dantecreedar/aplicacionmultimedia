@@ -37,7 +37,7 @@ const VideoList: React.FC = () => {
     {
       id: "1",
       url: "/videos/4612176-uhd_4096_2160_25fps.mp4",
-      username: "usuario1",
+      username: "Warner Bros",
       description: "Video en calidad 4K",
       likes: 1234,
       comments: 56,
@@ -48,7 +48,7 @@ const VideoList: React.FC = () => {
     {
       id: "2",
       url: "/videos/4434159-hd_1080_1920_30fps.mp4",
-      username: "usuario2",
+      username: "Disney",
       description: "Video en calidad HD",
       likes: 2345,
       comments: 78,
@@ -59,7 +59,7 @@ const VideoList: React.FC = () => {
     {
       id: "3",
       url: "/videos/4434150-hd_1080_1920_30fps.mp4",
-      username: "usuario3",
+      username: "Marvel",
       description: "Video en calidad HD",
       likes: 3456,
       comments: 90,

@@ -6,11 +6,13 @@ import {
   InputAdornment,
   IconButton,
   Avatar,
+  Button,
 } from "@mui/material";
-import { Search } from "@mui/icons-material";
+import { Search, KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
 import VideoPlayer from "./VideoPlayer";
 import UserProfile from "./UserProfile";
 import VideoDetail from "./VideoDetail";
+import Login from "./Login";
 
 interface Video {
   id: string;
@@ -25,12 +27,15 @@ interface Video {
 }
 
 const VideoList: React.FC = () => {
+  // Todos los Hooks deben estar al inicio del componente
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string>("");
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolling, setIsScrolling] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Lista de videos de prueba
   const videos: Video[] = [
@@ -69,6 +74,11 @@ const VideoList: React.FC = () => {
     },
   ];
 
+  const handleLogin = (username: string) => {
+    setIsAuthenticated(true);
+    setCurrentUser(username);
+  };
+
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
@@ -79,66 +89,134 @@ const VideoList: React.FC = () => {
       video.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleVideoSelect = (video: Video) => {
+    setSelectedVideo(video);
+  };
+
+  const handleNavigateUp = () => {
+    if (currentVideoIndex > 0) {
+      setCurrentVideoIndex(prev => prev - 1);
+    }
+  };
+
+  const handleNavigateDown = () => {
+    if (currentVideoIndex < videos.length - 1) {
+      setCurrentVideoIndex(prev => prev + 1);
+    }
+  };
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    let lastY = 0;
-    let isDragging = false;
-    let lastIndex = currentVideoIndex;
+    let isScrolling = false;
+    let scrollTimeout: NodeJS.Timeout;
 
-    const handleMouseDown = (e: MouseEvent) => {
-      isDragging = true;
-      lastY = e.clientY;
-      lastIndex = currentVideoIndex;
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-
-      const deltaY = e.clientY - lastY;
-      const videoHeight = window.innerHeight;
-      const newIndex = Math.round(deltaY / videoHeight);
-
-      if (newIndex !== 0) {
-        const targetIndex = lastIndex - newIndex;
-        if (targetIndex >= 0 && targetIndex < videos.length) {
-          setCurrentVideoIndex(targetIndex);
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      
+      if (isScrolling) return;
+      
+      isScrolling = true;
+      
+      if (e.deltaY > 0) {
+        // Scroll hacia abajo
+        if (currentVideoIndex < videos.length - 1) {
+          setCurrentVideoIndex(prev => prev + 1);
+        }
+      } else {
+        // Scroll hacia arriba
+        if (currentVideoIndex > 0) {
+          setCurrentVideoIndex(prev => prev - 1);
         }
       }
+
+      // Resetear el estado de scroll después de la transición
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+      }, 300); // Mismo tiempo que la transición CSS
     };
 
-    const handleMouseUp = () => {
-      isDragging = false;
-      setIsScrolling(false);
-    };
-
-    container.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
-      container.removeEventListener("mousedown", handleMouseDown);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener('wheel', handleWheel);
+      clearTimeout(scrollTimeout);
     };
   }, [currentVideoIndex, videos.length]);
 
-  const handleVideoSelect = (video: Video) => {
-    setSelectedVideo(video);
-  };
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   return (
     <Box
       ref={containerRef}
       sx={{
         height: "100vh",
+        width: "100vw",
         overflow: "hidden",
-        position: "relative",
-        cursor: isScrolling ? "grabbing" : "grab",
-        userSelect: "none",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        backgroundColor: "black",
+        zIndex: 1,
       }}
     >
+      {/* Botones de navegación */}
+      <Box
+        sx={{
+          position: "fixed",
+          right: "20px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px",
+          zIndex: 1000,
+        }}
+      >
+        <IconButton
+          onClick={handleNavigateUp}
+          disabled={currentVideoIndex === 0}
+          sx={{
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            color: "white",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+            },
+            "&.Mui-disabled": {
+              backgroundColor: "rgba(255, 255, 255, 0.05)",
+              color: "rgba(255, 255, 255, 0.3)",
+            },
+            width: "50px",
+            height: "50px",
+          }}
+        >
+          <KeyboardArrowUp sx={{ fontSize: 30 }} />
+        </IconButton>
+        <IconButton
+          onClick={handleNavigateDown}
+          disabled={currentVideoIndex === videos.length - 1}
+          sx={{
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            color: "white",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+            },
+            "&.Mui-disabled": {
+              backgroundColor: "rgba(255, 255, 255, 0.05)",
+              color: "rgba(255, 255, 255, 0.3)",
+            },
+            width: "50px",
+            height: "50px",
+          }}
+        >
+          <KeyboardArrowDown sx={{ fontSize: 30 }} />
+        </IconButton>
+      </Box>
+
       {/* Buscador flotante con icono de usuario */}
       <Paper
         elevation={3}
@@ -227,7 +305,7 @@ const VideoList: React.FC = () => {
         >
           <Avatar
             src="/path-to-user-avatar.jpg"
-            alt={videos[currentVideoIndex].username}
+            alt={currentUser}
             sx={{
               width: 32,
               height: 32,
@@ -242,7 +320,7 @@ const VideoList: React.FC = () => {
               },
             }}
           >
-            {videos[currentVideoIndex].username?.charAt(0).toUpperCase()}
+            {currentUser?.charAt(0).toUpperCase()}
           </Avatar>
         </IconButton>
       </Paper>
@@ -252,12 +330,13 @@ const VideoList: React.FC = () => {
           key={video.id}
           sx={{
             height: "100vh",
-            width: "100%",
+            width: "100vw",
             position: "absolute",
             top: 0,
             left: 0,
             transform: `translateY(${(index - currentVideoIndex) * 100}vh)`,
-            transition: isScrolling ? "none" : "transform 0.3s ease-out",
+            transition: "transform 0.3s ease-out",
+            willChange: "transform",
           }}
         >
           <VideoPlayer
